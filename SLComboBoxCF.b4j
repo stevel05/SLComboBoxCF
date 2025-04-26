@@ -1,0 +1,166 @@
+﻿AppType=JavaFX
+Build1=Default,b4j.example
+File1=Layout1.bjl
+FileGroup1=Default Group
+Group=Default Group
+Library1=jcore
+Library2=jfx
+Library3=jxui
+Library4=javaobject
+Module1=aaaIDElinks
+Module2=CCF_Utils
+Module3=SLComboboxCF
+NumberOfFiles=1
+NumberOfLibraries=4
+NumberOfModules=3
+Version=10.2
+@EndOfDesignText@
+#Region Project Attributes 
+	#MainFormWidth: 600
+	#MainFormHeight: 600 
+#End Region
+
+Sub Process_Globals
+	Private fx As JFX
+	Private MainForm As Form
+	Private xui As XUI 
+	Private SLComboboxCF1 As SLComboboxCF
+	Private SLComboboxCF2 As SLComboboxCF
+End Sub
+
+Sub AppStart (Form1 As Form, Args() As String)
+	MainForm = Form1
+	MainForm.RootPane.LoadLayout("Layout1")
+	MainForm.Show
+	SLComboboxCF1.Items = Array As String(1,2,3,4,5,6)
+	SLComboboxCF2.Items = Array( _
+	CreateMap("color":0xFFFF0000,"text":"Red"), _
+	CreateMap("color":0xFF00FF00,"text":"Green"), _
+	CreateMap("color":0xFF0000FF,"text":"Blue"))
+	
+	SLComboboxCF1.PromptText = "Select an Item"
+	SLComboboxCF2.PromptText = "Select a Colour"
+	
+End Sub
+
+Private Sub SLComboboxCF1_SelectedIndexChanged(Index As Int, Value As Object)
+'	Log("1SIChanged " & Index)
+	If Index = -1 Then SetPromptStyle(Sender)
+End Sub
+
+Private Sub SLComboboxCF2_SelectedIndexChanged(Index As Int, Value As Object)
+'	Log("2SIChanged " & Index)
+	If Index = -1 Then SetPromptStyle(Sender)
+End Sub
+
+'Dont want resiudal styles from the cellfactory on the prompt text.
+Private Sub SetPromptStyle(thisComboBoxCF As SLComboboxCF)
+	SetPromptStyle2(thisComboBoxCF,xui.Color_Black)	
+End Sub
+
+Private Sub SetPromptStyle2(thisComboBoxCF As SLComboboxCF, Color As Int)
+	Dim LCB As B4XView = thisComboBoxCF.Combobox.As(JavaObject).RunMethod("getButtonCell",Null)
+	If Initialized(LCB) Then
+		LCB.TextColor = Color
+		LCB.SetTextAlignment("CENTER","LEFT")
+	Else
+		LCB = CCF_Utils.NewListCell2(thisComboBoxCF.PromptText)
+		LCB.TextColor = Color
+		LCB.SetTextAlignment("CENTER","LEFT")
+		thisComboBoxCF.ButtonCell = LCB
+	End If
+End Sub
+
+'Just for Testing
+Private Sub btnClearSelection_Click
+	SLComboboxCF1.Combobox.SelectedIndex = -1
+	SLComboboxCF2.Combobox.SelectedIndex = -1
+End Sub
+
+#Region CellFactory Callbacks
+
+'ListCell is a descendant of Node, so we can cast it to a B4xView and use the styling provided
+'by B4xView
+
+Private Sub SLComboboxCF1_GetText(Cell As B4XView, Source As Object) As String
+	Cell.TextColor = xui.Color_Blue
+	Cell.SetTextAlignment("CENTER","LEFT")
+	Return Source
+End Sub
+
+'Return a Node for the cell content.
+private Sub SLComboboxCF2_GetGraphic(Cell As B4XView, Source As Object) As Node
+	If Source Is Map Then
+		Return SetFromMap("cell",Source)
+	Else
+		Dim L As B4XView = CCF_Utils.NewLabel
+		L.Text = Source
+		L.TextColor = xui.Color_Red
+		L.SetTextAlignment("CENTER","CENTER")
+		'Need to set a width so the text can center.
+		L.Width = SLComboboxCF1.mBase.Width - 30
+		Return L
+	End If
+End Sub
+
+Private Sub SLComboboxCF1_SetButtonCell(Value As Object)
+	Dim LCB As B4XView = CCF_Utils.NewListCell
+	LCB.Text = Value
+	LCB.TextColor = xui.Color_Blue
+	LCB.SetTextAlignment("CENTER","LEFT")
+	SLComboboxCF1.ButtonCell = LCB
+End Sub
+
+Private Sub SLComboboxCF2_SetButtonCell(Value As Object)
+	If Value Is Map Then
+		Dim LCB As B4XView = SetFromMap("buttoncell",Value)
+	Else
+		Dim LCB As B4XView = CCF_Utils.NewListCell
+		LCB.Text = Value
+		LCB.TextColor = xui.Color_Red
+		LCB.SetTextAlignment("CENTER","CENTER")
+	End If
+	SLComboboxCF2.ButtonCell = LCB
+End Sub
+
+Private Sub SetFromMap(tType As String, M As Map) As Object
+
+	'Pane to hold the regtangle so we can display it smaller than the hbox height
+	'Use the same pane for Cell and ButtonCell Nodes
+	Dim P As B4XView = xui.CreatePanel("")
+	P.SetLayoutAnimated(0,0,0,25,30)
+	Dim R As JavaObject = CCF_Utils.NewRectangle(15,15, M.Get("color"))
+	'Position the rectangle where we want it in the pane.
+	P.AddView(R,0,7.5,10,15)
+	
+	If tType = "cell" Then
+		'Return a Node with Rectangle (In a pane) and Label
+		
+		'Hbox is the easiest way to 'stack' views horizontally, no need to calculate positions.
+		Dim HB As JavaObject = CCF_Utils.NewHBox
+		Dim L As B4XView = CCF_Utils.NewLabel
+		L.Text = M.Get("text")
+		L.SetTextAlignment("CENTER","LEFT")
+		'Need to set a Height value so the text Centers Vertically
+		L.Height = 30
+		
+		HB.RunMethod("getChildren",Null).As(List).AddAll(Array(P,L))
+		Return HB
+		
+	Else If tType = "buttoncell" Then
+		
+		'Return a listcell object with graphic
+		Dim LCB As B4XView = CCF_Utils.NewListCell
+		LCB.As(JavaObject).RunMethod("setGraphic",Array(P))
+		
+		'Helps align the views to those in the List
+		LCB.As(JavaObject).RunMethod("setGraphicTextGap",Array(-1.0))
+		
+		LCB.Text = M.Get("text")
+		LCB.SetTextAlignment("CENTER","LEFT")
+		Return LCB
+	End If
+	
+	Return Null
+End Sub
+#End Region CellFactory Callbacks
