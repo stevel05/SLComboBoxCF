@@ -13,13 +13,16 @@ Version=10.2
 
 
 Sub Class_Globals
+	Public const CELLTYPE_TEXT As String = "Text"
+	Public const CELLTYPE_GRAPHIC As String = "Graphic"
+	
 	Private mEventName As String 'ignore
 	Private mCallBack As Object 'ignore
 	Public mBase As B4XView
 	Private xui As XUI 'ignore
 	Public Tag As Object
 	Private ComboBox1 As ComboBox
-	Private CellType As String = "Graphic"
+	Private mCellType As String = "Graphic"
 	Private EventMap As JavaObject
 End Sub
 
@@ -38,7 +41,7 @@ Public Sub DesignerCreateView (Base As Object, Lbl As Label, Props As Map)
 	ComboBox1.Initialize("Combobox1")
 	mBase.AddView(ComboBox1,0,0,mBase.Width,mBase.Height)
 	
-	CellType = Props.GetDefault("celltype","Text")
+	mCellType = Props.GetDefault("celltype","Text")
 	
 	'Set the Callback sub for CellFactory
 	Dim Cb As JavaObject = ComboBox1
@@ -92,9 +95,13 @@ End Sub
 
 #Region CellFactory Callbacks
 
+Public Sub setCellType(tType As String)
+	mCellType = tType
+End Sub
+
 Private Sub Callback_Event(MethodName As String,Args() As Object) As Object
 	'Call the java cell factory code
-	If MethodName = "call" Then Return Me.As(JavaObject).RunMethod("newListCell",Array(CellType))
+	If MethodName = "call" Then Return Me.As(JavaObject).RunMethod("newListCell",Array(mCellType))
 	Return False
 End Sub
 

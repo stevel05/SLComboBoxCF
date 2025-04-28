@@ -32,6 +32,7 @@ Sub AppStart (Form1 As Form, Args() As String)
 	MainForm = Form1
 	MainForm.RootPane.LoadLayout("Layout1")
 	MainForm.Show
+	SLComboboxCF1.celltype = SLComboboxCF1.CELLTYPE_GRAPHIC
 	SLComboboxCF1.Items = Array As String(1,2,3,4,5,6)
 	SLComboboxCF2.Items = Array( _
 	CreateMap("color":0xFFFF0000,"text":"Red"), _
@@ -44,16 +45,17 @@ Sub AppStart (Form1 As Form, Args() As String)
 End Sub
 
 Private Sub SLComboboxCF1_SelectedIndexChanged(Index As Int, Value As Object)
-'	Log("1SIChanged " & Index)
+'	Reset style for the button cell
 	If Index = -1 Then SetPromptStyle(Sender)
 End Sub
 
 Private Sub SLComboboxCF2_SelectedIndexChanged(Index As Int, Value As Object)
-'	Log("2SIChanged " & Index)
+'	Reset style for the button cell
 	If Index = -1 Then SetPromptStyle(Sender)
 End Sub
 
 'Dont want resiudal styles from the cellfactory on the prompt text.
+'Configure as you need
 Private Sub SetPromptStyle(thisComboBoxCF As SLComboboxCF)
 	SetPromptStyle2(thisComboBoxCF,xui.Color_Black)	
 End Sub
@@ -81,7 +83,6 @@ End Sub
 
 'ListCell is a descendant of Node, so we can cast it to a B4xView and use the styling provided
 'by B4xView
-
 Private Sub SLComboboxCF1_GetText(Cell As B4XView, Source As Object) As String
 	Cell.TextColor = xui.Color_Blue
 	Cell.SetTextAlignment("CENTER","LEFT")
@@ -89,7 +90,7 @@ Private Sub SLComboboxCF1_GetText(Cell As B4XView, Source As Object) As String
 End Sub
 
 'Return a Node for the cell content.
-private Sub SLComboboxCF2_GetGraphic(Cell As B4XView, Source As Object) As Node
+Private Sub SLComboboxCF2_GetGraphic(Cell As B4XView, Source As Object) As Node
 	If Source Is Map Then
 		Return SetFromMap("cell",Source)
 	Else
@@ -103,6 +104,9 @@ private Sub SLComboboxCF2_GetGraphic(Cell As B4XView, Source As Object) As Node
 	End If
 End Sub
 
+'
+' Button Cell
+'
 Private Sub SLComboboxCF1_SetButtonCell(Value As Object)
 	Dim LCB As B4XView = CCF_Utils.NewListCell
 	LCB.Text = Value
@@ -126,7 +130,7 @@ End Sub
 Private Sub SetFromMap(tType As String, M As Map) As Object
 
 	'Pane to hold the regtangle so we can display it smaller than the hbox height
-	'Use the same pane for Cell and ButtonCell Nodes
+	'Use the same pane layout for Cell pr ButtonCell Nodes
 	Dim P As B4XView = xui.CreatePanel("")
 	P.SetLayoutAnimated(0,0,0,25,30)
 	Dim R As JavaObject = CCF_Utils.NewRectangle(15,15, M.Get("color"))
