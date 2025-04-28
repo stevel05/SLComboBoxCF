@@ -2,52 +2,23 @@
 
 An implementation of a javafx combobox for B4j with Cell Factory.
 
-Select the type of the cell required in the designer or set it in code:
-`
-SLComboboxCF1.celltype = SLComboboxCF1.CELLTYPE_GRAPHIC
-`
-before adding items.
+Select the type of the cell required in the designer.
 
 Add items to the Combobox in the normal way:
-`
-Dim L As List = Array As String(1,2,3,4,5,6)
-SLComboboxCF1.Items = L
-`
 
-Add the appropriate callback for the type of cell:
+SLComboboxCF implements callbacks to get the data it needs for the cellfactory which are:
+
 ```
-'ListCell is a descendant of Node, so we can cast it to a B4xView and use the styling provided
-'by B4xView
-Private Sub SLComboboxCF1_GetText(Cell As B4XView, Source As Object) As String
-	Cell.TextColor = xui.Color_Blue
-	Cell.SetTextAlignment("CENTER","LEFT")
-	Return Source
-End Sub
-
-'Return a Node for the cell content.
-Private Sub SLComboboxCF1_GetGraphic(Cell As B4XView, Source As Object) As Node
-	If Source Is Map Then
-		Return SetFromMap("cell",Source)
-	Else
-		Dim L As B4XView = CCF_Utils.NewLabel
-		L.Text = Source
-		L.TextColor = xui.Color_Red
-		L.SetTextAlignment("CENTER","CENTER")
-		'Need to set a width so the text can center.
-		L.Width = SLComboboxCF1.mBase.Width - 30
-		Return L
-	End If
-End Sub
+#Event: SetButtonCell(Value As Object)
+#Event: GetGraphic(Cell As B4xView, Source as Object) As Node
+#Event: GetText(Cell As B4xView, Source as Object) As String
 ```
 
-If you wish to style the button cell, add a callback:
-```
-Private Sub SLComboboxCF1_SetButtonCell(Value As Object)
-	Dim LCB As B4XView = CCF_Utils.NewListCell
-	LCB.Text = Value
-	LCB.TextColor = xui.Color_Blue
-	LCB.SetTextAlignment("CENTER","LEFT")
-	SLComboboxCF1.ButtonCell = LCB
-End Sub
-```
+`eventname_SetButtonCell` is called when the selected index is changed (before the call to SelectedIndexChanged) and gives the opportunity to set the appearance of the button cell to match (or not) the data in the Combobox dropdown. You need to explicitly set the button cell with a call to  the SLComboboxCF's `ButtonCell` method.
+
+If the celltype is 'Text' a callback is made to `eventname_GetText'.  Cell inherits from Node, so it is cast to a B4xView the styling provided by B4xView can be used.
+
+If the celltype is 'Graphic' a callback is made to `eventname_GetGraphic'. Which should return a Node with the required layout and data.
+
+See the examples in the app for more details.
 

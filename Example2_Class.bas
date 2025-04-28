@@ -101,7 +101,6 @@ Private Sub SetFromMap(tType As String, M As Map) As Object
 	
 	If tType = "cell" Then
 		'Return a Node with Rectangle (In a pane) and Label
-		
 		'Hbox is the easiest way to 'stack' views horizontally, no need to calculate positions.
 		Dim HB As JavaObject = CCF_Utils.NewHBox
 		Dim L As B4XView = CCF_Utils.NewLabel
