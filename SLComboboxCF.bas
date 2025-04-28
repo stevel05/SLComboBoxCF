@@ -56,7 +56,7 @@ Private Sub Base_Resize (Width As Double, Height As Double)
 End Sub
 
 #Region Wrapper subs
-Public Sub setButtonCell(Cell As JavaObject)
+Public Sub setButtonCell(Cell As Object)
 	ComboBox1.As(JavaObject).RunMethod("setButtonCell",Array(Cell))
 End Sub
 
