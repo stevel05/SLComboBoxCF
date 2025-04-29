@@ -2,6 +2,9 @@
 
 An implementation of a javafx combobox for B4j with Cell Factory.
 
+![Simple](README_Images/SimpleCombobox.png)
+![Complex](README_Images/ComplexCombobox.png)
+
 Select the type of the cell required in the designer.
 
 Add items to the Combobox in the normal way:
